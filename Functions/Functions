@@ -1,0 +1,226 @@
+// Functions to export. 
+
+/*
+
+  Function that takes the image and computes the Entropy values using a circular 4-radius kernel. 
+  The bands are renamed 'VV_E' and 'VH_E' for clarity. The image is cast to Int32(), otherwise the computation won't function. 
+
+*/
+
+// computeEntropy: Computes entropy for all relevant bands.  
+exports.computeEntropy = function (image) {
+  
+  // Define a neighborhood with a kernel.
+  var kernel = ee.Kernel.circle({radius: 4});
+  
+  var ent =  ee.Image(image.toInt32()).entropy(kernel).rename('VV_E', 'VH_E');
+  return image.addBands(ent);
+};
+
+/*
+  
+  Function that preformed the Gray-Level Co-Occurance Matrix computations, using a 4-radius kernel. 
+  As with the computing of Entropy, the image is cast to Int32() as a necessity. 
+
+*/
+
+// computeGlcm: Computes the GLCM values and add them as bands.  
+exports.computeGlcm = function (image) {
+  var glcm = ee.Image(image.toInt32()).glcmTexture(4); 
+  return image.addBands(glcm);
+};
+
+
+
+/*
+
+  Function that preforms the Superpixel clustering based on SNIC (Simple Non-Iterative Clustering).
+  A single ee.Image() as well as a superPixelSize (sPS) value is required for the function to function. 
+  The value of sPS can be chosen by the user, but for proper functioning of the algorithm a value
+  inversely proportional to the lake/reservoir size is required. 
+
+*/
+
+// afn_SNIC: Creates the SNIC clustering images. 
+exports.afn_SNIC = function(imageOriginal, sPS) {
+  
+  // Adjustable Superpixel Seed and SNIC segmentation Parameters:
+  var superPixelSize = sPS;
+  var compactness = 0.1;                            // Adjust
+  var connectivity = 4;                             // Adjust
+  var seedShape = 'square';                         // Adjust
+  var neighborhoodSize = 2 * superPixelSize;        // Adjust
+  
+    var theSeeds = ee.Algorithms.Image.Segmentation.seedGrid(
+        superPixelSize, seedShape);
+    var snic = ee.Algorithms.Image.Segmentation.SNIC({
+        image: imageOriginal,
+        size: superPixelSize,
+        compactness: compactness,
+        connectivity: connectivity,
+        neighborhoodSize: neighborhoodSize,
+        seeds: theSeeds
+    });
+    var theStack = snic.addBands(theSeeds);
+    return (theStack);
+};
+
+
+/*
+
+  Function that vectorizes the SNIC Image from the afn_SNIC() function taking into account the geometry of
+  the lake/reservoir. A scale factor is set to decide how large the clusters should be. Can be adapted for
+  larger/smaller cluster size. The option tileScale is (at this moment) not set to true, but this can be done when
+  computation time-out error occur. BestEffort is set to true in case larger reservoirs/lakes are taken into account. 
+
+*/
+
+// vectorize: Creates the vectors from the SNIC clustering images. 
+exports.vectorize = function(snicImage, geometry) {
+  var vectors = ee.Image(snicImage).select('clusters').reduceToVectors({
+    geometryType: 'polygon', 
+    reducer: ee.Reducer.countEvery(), 
+    scale: 3,
+    maxPixels: 1e10, 
+    // tileScale: 8, 
+    bestEffort: true,
+    geometry: geometry
+  });
+  return vectors;
+};
+
+/*
+
+  Function that paints the vectors so that they can be displayed on a map. 
+
+*/
+
+// paints: Creates the painted outlines of the SNIC cluster-vectors. 
+exports.paints = function(vectors) {
+  var empty = ee.Image().byte();
+  var outline = empty.paint({
+    featureCollection: vectors, 
+    color: 1, 
+    width: 1
+  });
+  return outline;
+};
+
+/*
+
+  Function that prepares the Sentinel-1 imagery for classification. Divies up the image into the vector-segments 
+  made with the vectorize-function. Computes mean/stdDev/median for each segment and concatenates the layers 
+  into a multi-band image. 
+
+*/
+
+exports.prepareImage = function(image, vectors) {
+  
+  var classToInt = vectors.reduceToImage({
+    properties: ['label'], 
+    reducer: ee.Reducer.first()
+  }).rename('id').toInt();
+  var classImage = image.addBands(classToInt);
+  
+  var classMean = classImage.reduceConnectedComponents({
+    reducer: ee.Reducer.mean(), 
+    labelBand: 'id'
+  });
+  var classStdDev = classImage.reduceConnectedComponents({
+    reducer: ee.Reducer.stdDev(), 
+    labelBand: 'id'
+  });
+  var classMedian = classImage.reduceConnectedComponents({
+    reducer: ee.Reducer.median(), 
+    labelBand: 'id'
+  });
+  
+  var classCat = ee.Image.cat([
+    classMean, 
+    classStdDev, 
+    classMedian
+    ]).float();
+  
+  var classClip = classCat.clip(vectors);
+  return classClip;
+};
+
+
+/*
+
+  Function that takes the trees in the decisionTrees (= ee.List(RF.explain().get('trees'))) and coverts them into a JSON
+  that can be exported as an asset. 
+
+*/
+
+// encodeFeatureCollection: Takes the list-version (var decisionTrees = ee.List(RF.explain().get('trees'))) and readies to level that it can be exported as asset. 
+exports.encodeFeatureCollection = function(value) {
+  var string = ee.String.encodeJSON(value);
+  var stringLength = string.length();
+  var maxLength = 100000;
+  var maxProperties = 1000;
+  var values = ee.List.sequence(0, stringLength, maxLength)
+    .map(function (start) {
+      start = ee.Number(start);
+      var end = start.add(maxLength).min(stringLength);
+      return string.slice(start, end);
+    })
+    .filter(ee.Filter.neq('item', ''));
+  var numberOfProperties = values.size();
+  return ee.FeatureCollection(ee.List.sequence(0, values.size(), maxProperties)
+    .map(function (start) {
+      start = ee.Number(start);
+      var end = start.add(maxProperties).min(numberOfProperties);
+      var propertyValues = values.slice(start, end);
+      var propertyKeys = ee.List.sequence(1, propertyValues.size())
+        .map(function (i) {
+          return ee.Number(i).format('%d');
+        });
+      var properties = ee.Dictionary.fromLists(propertyKeys, propertyValues);
+      return ee.Feature(ee.Geometry.Point([0, 0]), properties);
+    }).filter(ee.Filter.notNull(['1']))
+  );
+};
+
+
+/*
+
+  Takes the asset created using the .encodeFeatureCollection function and builts the FeatureCollected back into a RandomForest
+  Classifier that can be used in classification. Ensures that the RandomForest doesn't have to be re-trained each time the 
+  classifier is called upon or the app is used, saving on computation time. 
+
+*/
+
+// decodeFeatureCollection: decodes the assset to RandomForest. 
+exports.decodeFeatureCollection = function(featureCollection) {
+  return featureCollection
+    .map(function (feature) {
+      var dict = feature.toDictionary();
+      var keys = dict.keys()
+        .map(function (key) {
+          return ee.Number.parse(ee.String(key));
+        });
+      var value = dict.values().sort(keys).join();
+      return ee.Feature(null, {value: value});
+    })
+    .aggregate_array('value')
+    .join()
+    .decodeJSON();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
