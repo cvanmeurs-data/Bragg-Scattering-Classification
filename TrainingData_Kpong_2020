@@ -1,0 +1,791 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var selectedLakes = ee.FeatureCollection("projects/ee-cvanmeursdata/assets/Thesis/Selected_Lakes");
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+
+// Import geometry and select lake. 
+var lakeKpong = ee.Feature(ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 15904)).first()).buffer(-450).buffer(350));
+
+// Set center and add lake outline. 
+Map.centerObject(lakeKpong, 13);
+Map.addLayer(lakeKpong, {}, 'Lake Outline');
+
+// Function to set class to bragg/water
+var setClassWater = function(feature) {
+  return feature.set('class', 1);
+};
+var setClassBragg = function(feature) {
+  return feature.set('class', 2);
+};
+
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------- (1). SELECTION BRAGG PATCHES ------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------------------- 2020 ------------------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// JANUARY
+
+// Jan 5th
+var waterKpong20200105 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 11th
+var waterKpong20200111 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 17th
+var waterKpong20200117 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 23rd
+var waterKpong20200123 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 29th
+var waterKpong20200129 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// FEBRUARY
+
+// Feb 4th
+var waterKpong20200204 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 10th
+var waterKpong20200210 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 16th
+var waterKpong20200216 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 22nd
+var waterKpong20200222 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 28th
+var waterKpong20200228 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// MARCH
+
+// Mar 5th
+var braggKpong20200305 = ee.Feature(
+                         ee.Geometry.MultiPolygon(
+        [[[[0.07321713180977074, 6.146549443368576],
+           [0.07531998367744652, 6.144885363960226],
+           [0.07660744400459496, 6.145525395117765],
+           [0.07712242813545434, 6.1457387386658775],
+           [0.07853863449531762, 6.145653401256895],
+           [0.08042690964180199, 6.147232141107441],
+           [0.08162853928047387, 6.14855486548326],
+           [0.08055565567451684, 6.149621576293445],
+           [0.0792681953473684, 6.149962923300802],
+           [0.07768032761055199, 6.150176265069127],
+           [0.07733700485664574, 6.149194892226112],
+           [0.07634995193916527, 6.148426860042261],
+           [0.07454750748115746, 6.148042843534415]]],
+         [[[0.08008358688789574, 6.152949700266827],
+           [0.08072731705146996, 6.153461717490181],
+           [0.0815427085919973, 6.153376381320532],
+           [0.0820147773786184, 6.151840327924104],
+           [0.08300183029609887, 6.1522243416893705],
+           [0.08373139114814965, 6.153760393976002],
+           [0.08377430649238793, 6.1546137544390165],
+           [0.08308766098457543, 6.15401640225881],
+           [0.08175728531318871, 6.153973734220231],
+           [0.0815427085919973, 6.155211105947667],
+           [0.08059857101875512, 6.155637785185505],
+           [0.07931111069160668, 6.156363139103322],
+           [0.07875321121650902, 6.156192467682352],
+           [0.07737992020088402, 6.156917820842752],
+           [0.0774228355451223, 6.155552449365349],
+           [0.07802365036445824, 6.15435774644401],
+           [0.07871029587227074, 6.153461717490181],
+           [0.07896778793770043, 6.152864364014967]]],
+         [[[0.09106991501289574, 6.156960488644863],
+           [0.0911557457013723, 6.156320471253221],
+           [0.09257195206123559, 6.157557837514582],
+           [0.09424565048652855, 6.1576431730125485],
+           [0.09446022720771996, 6.1584111918772155],
+           [0.09278652878242699, 6.158453859559356]]],
+         [[[0.08664963455635277, 6.159776556004891],
+           [0.08519051285225121, 6.1603739017065875],
+           [0.08489010544258324, 6.159435215302143],
+           [0.08540508957344262, 6.1581125180062815],
+           [0.0875079414411184, 6.159051206749247]]]]), 
+        {
+          "class": 2, 
+          "system:index": "0"
+        });
+
+var waterKpong20200305 = ee.Feature(lakeKpong.difference({'right': braggKpong20200305, 'maxError': 1})).set("class", 1);
+
+// Mar 11th
+var waterKpong20200311 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 17th
+var waterKpong20200317 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 23rd
+var waterKpong20200323 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 29th
+var waterKpong20200329 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// APRIL
+
+// Apr 4th
+var waterKpong20200404 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 10th
+var waterKpong20200410 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 16th
+var waterKpong20200416 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 22nd
+var waterKpong20200422 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 28th
+var waterKpong20200428 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// MAY 
+
+// May 4th
+var waterKpong20200504 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 10th
+var waterKpong20200510 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 16th
+var waterKpong20200516 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 22nd
+var waterKpong20200522 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 28th
+var waterKpong20200528 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// JUNE
+
+// Jun 3rd
+var waterKpong20200603 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jun 9th
+var waterKpong20200609 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jun 15th
+var waterKpong20200615 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jun 27th
+var waterKpong20200627 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// JULY
+
+// Jul 3rd
+var waterKpong20200703 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 9th
+var waterKpong20200709 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 15th
+var waterKpong20200715 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 21st
+var waterKpong20200721 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 27th
+var waterKpong20200727 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// AUGUST
+
+// Aug 2nd 
+var waterKpong20200802 = ee.Feature(lakeKpong.geometry(),
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+        
+// Aug 8th
+var waterKpong20200808 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 14th
+var waterKpong20200814 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+        
+// Aug 20th
+var waterKpong20200820 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 26th
+var waterKpong20200826 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// SEPTEMBER
+
+// Sep 1st
+var waterKpong20200901 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 7th
+var waterKpong20200907 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 13th
+var waterKpong20200913 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 19th
+var waterKpong20200919 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 25th
+var waterKpong20200925 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// OCTOBER
+
+// Oct 1st
+var waterKpong20201001 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 7th
+var waterKpong20201007 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 13th
+var waterKpong20201013 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 19th
+var waterKpong20201019 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 25th
+var waterKpong20201025 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 31st
+var waterKpong20201031 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// NOVEMBER
+
+// Nov 6th
+var waterKpong20201106 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 12th
+var waterKpong20201112 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 18th
+var waterKpong20201118 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 24th
+var waterKpong20201124 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 30th
+var waterKpong20201130 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// DECEMBER
+
+// Dec 6th
+var waterKpong20201206 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 12th
+var waterKpong20201212 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 18th
+var waterKpong20201218 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 24th
+var waterKpong20201224 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 30th
+var waterKpong20201230 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// --------------------------------- (b). compile lists ------------------------------------------- //
+
+var waterKpong2020 = ee.List([
+waterKpong20200105,
+waterKpong20200117,
+waterKpong20200129,
+waterKpong20200210,
+waterKpong20200222,
+waterKpong20200305,
+waterKpong20200317,
+waterKpong20200329,
+waterKpong20200410,
+waterKpong20200422,
+waterKpong20200504,
+waterKpong20200516,
+waterKpong20200528,
+waterKpong20200609,
+waterKpong20200703,
+waterKpong20200715,
+waterKpong20200727,
+waterKpong20200808,
+waterKpong20200820,
+waterKpong20200901,
+waterKpong20200913,
+waterKpong20200925,
+waterKpong20201007,
+waterKpong20201019,
+waterKpong20201031,
+waterKpong20201112,
+waterKpong20201124,
+waterKpong20201206,
+waterKpong20201218,
+waterKpong20201230,
+waterKpong20200111,
+waterKpong20200123,
+waterKpong20200204,
+waterKpong20200216,
+waterKpong20200228,
+waterKpong20200311,
+waterKpong20200323,
+waterKpong20200404,
+waterKpong20200416,
+waterKpong20200428,
+waterKpong20200510,
+waterKpong20200522,
+waterKpong20200603,
+waterKpong20200615,
+waterKpong20200627,
+waterKpong20200709,
+waterKpong20200721,
+waterKpong20200802,
+waterKpong20200814,
+waterKpong20200826,
+waterKpong20200907,
+waterKpong20200919,
+waterKpong20201001,
+waterKpong20201013,
+waterKpong20201025,
+waterKpong20201106,
+waterKpong20201118,
+waterKpong20201130,
+waterKpong20201212,
+waterKpong20201224,
+]);
+var braggKpong2020 = ee.List([
+waterKpong20200305,
+]);
+
+// ---------------------------------- (c). sample lists ------------------------------------------- //
+
+// Sample the lists with random points, so that they can be used in classification. 
+var randomPointsWater = waterKpong2020.map(function(listElement) {
+  return ee.FeatureCollection.randomPoints({
+    region: ee.Feature(listElement).geometry(),
+    points: 50, 
+    seed: 0, 
+    maxError: 1,
+  }).map(setClassWater);
+});
+var randomPointsBragg = braggKpong2020.map(function(listElement) {
+  return ee.FeatureCollection.randomPoints({
+    region: ee.Feature(listElement).geometry(),
+    points: 50, 
+    seed: 0, 
+    maxError: 1,
+  }).map(setClassBragg);
+});
+
+// ------------------------------------------------------------------------------------------------ //
+// --------------------------- (2). COMPUTE SENTINEL-1 IMAGERY ------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Define a neighborhood with a kernel.
+var kernel = ee.Kernel.circle({radius: 4});
+
+// Function to compute Entropy. 
+var computeEntropy = function (image) {
+  var ent =  ee.Image(image.toInt32()).entropy(kernel).rename('VV_E', 'VH_E');
+  return image.addBands(ent);
+};
+
+// Function to compute GLCM Features. 
+var computeGlcm = function (image) {
+  var glcm = ee.Image(image.toInt32()).glcmTexture(4); 
+  return image.addBands(glcm);
+};
+
+// Compile list of the selected Bands: VV, VH, Ent, GLCM.
+var selectedBands = ee.List([
+  "VV",
+  "VH",
+  "VV_E",
+  "VH_E",
+  "VV_asm",
+  "VV_contrast",
+  "VV_corr",
+  "VV_var",
+  "VV_idm",
+  "VV_savg",
+  "VV_svar",
+  "VV_sent",
+  "VV_ent",
+  "VV_dvar",
+  "VV_dent",
+  "VV_diss",
+  "VV_inertia",
+  "VV_shade",
+  "VV_prom",
+  "VH_asm",
+  "VH_contrast",
+  "VH_corr",
+  "VH_var",
+  "VH_idm",
+  "VH_savg",
+  "VH_svar",
+  "VH_sent",
+  "VH_ent",
+  "VH_dvar",
+  "VH_dent",
+  "VH_diss",
+  "VH_inertia",
+  "VH_shade",
+  "VH_prom",
+]);
+
+// Total Sentinel-1 Imagery for 2020-2021
+var Sentinel = ee.ImageCollection('COPERNICUS/S1_GRD')
+          .filterBounds(lakeKpong.geometry())
+          .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+          .filter(ee.Filter.date('2020-01-01', '2021-01-01'))
+          .select('VV', 'VH')
+          .map(computeEntropy)
+          .map(computeGlcm)
+          .select(selectedBands);
+          
+// ImageCollection to List
+var S12020 = Sentinel.toList(Sentinel.size());
+
+// Bragg Dates for Sentinel-1 Imagery 2020-2021
+var bD = ee.List(['2020-03-05']);
+var bDn = bD.map(function(date) {
+  var nextDate = ee.Date(date).advance(1, 'day');
+  var dateCombo = [ee.Date(date), nextDate];
+  return dateCombo;
+});
+
+// Bragg Sentinel-1 Imagery for 2020-2021, compiled from the Bragg Dates. 
+var SB12020 = bDn.map(function(date) {
+  return ee.Image(Sentinel.filter(ee.Filter.date(ee.List(date).get(0), ee.List(date).get(1))).first());
+});
+
+
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------- (3). COMPUTE SNIC IMAGERY -------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// function to compute SNIC superpixels. 
+var afn_SNIC = function(imageOriginal) {
+  
+  // Adjustable Superpixel Seed and SNIC segmentation Parameters:
+  var superPixelSize = 30;
+  var compactness = 1;
+  var connectivity = 4;
+  var seedShape = 'square';
+  var neighborhoodSize = 2 * superPixelSize;
+  
+  // Creates seed grid. 
+    var theSeeds = ee.Algorithms.Image.Segmentation.seedGrid(
+        superPixelSize, seedShape);
+  
+  // Preforms actual SNIC Segmentation. 
+    var snic = ee.Algorithms.Image.Segmentation.SNIC({
+        image: imageOriginal,
+        size: superPixelSize,
+        compactness: compactness,
+        connectivity: connectivity,
+        neighborhoodSize: neighborhoodSize,
+        seeds: theSeeds
+    });
+  
+  // Copies 'system:time_start' parameter to the computed SNIC imagery. 
+    var theStack = snic.addBands(theSeeds).copyProperties({
+      source: imageOriginal, 
+      properties: ['system:time_start']
+    });
+    return (theStack);
+};
+
+// Create SNIC images for all dates, and seperately for all Bragg dates.  
+var SNICsWater = S12020.map(afn_SNIC);
+var SNICsBragg = SB12020.map(afn_SNIC);
+
+// Compute list of band names. 
+var propertyList = ee.Image(SNICsWater.get(0)).bandNames();//.slice(1, 41);
+
+// ------------------------------------------------------------------------------------------------ //
+// ---------------------------------- (4). OVERLAY PIXELS ----------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// Zip together SNIC Imagery with the random water samples.
+var waterPredictor = ee.List(randomPointsWater).zip(SNICsWater);
+
+// Overlay and SNIC values for water by applying reduceRegions. 
+var fcSamplesWater = waterPredictor.map(function(imagePair) {
+  return ee.Image(ee.List(imagePair).get(1)).select(propertyList).reduceRegions({
+    collection: ee.FeatureCollection(ee.List(imagePair).get(0)),
+    reducer: ee.Reducer.first(), 
+    scale: 10, // Smaller scale can be used since less data is processed, so no computation time-out will occur. 
+  });
+});
+
+
+// Zip together SNIC Imagery with the random Bragg samples.
+var BraggPredictor = ee.List(randomPointsBragg).zip(SNICsBragg);
+
+// Overlay and SNIC values for Bragg by applying reduceRegions. 
+var fcSamplesBragg = BraggPredictor.map(function(imagePair) {
+  return ee.Image(ee.List(imagePair).get(1)).select(propertyList).reduceRegions({
+    collection: ee.FeatureCollection(ee.List(imagePair).get(0)),
+    reducer: ee.Reducer.first(), 
+    scale: 10, // Smaller scale can be used since less data is processed, so no computation time-out will occur. 
+  });
+});
+
+
+// Merge all waterTraining instances together to create one water data training set. 
+var mergerWater = ee.FeatureCollection([]);
+for (var i=0; i <=59; i++){ // The value of 59 is dependent on the size of this years ImageCollection.
+  var mergedWater = mergerWater.merge(ee.FeatureCollection(ee.List(fcSamplesWater).get(i)));
+  var mergerWater = mergedWater;
+}
+
+// Merge all braggTraining instances together to create one Bragg data training set. 
+var mergerBragg = ee.FeatureCollection([]);
+for (var i=0; i <=0; i++){ // The value of 0 is dependent on the amount of Bragg scattering present in that year.
+  var mergedBragg = mergerBragg.merge(ee.FeatureCollection(ee.List(fcSamplesBragg).get(i)));
+  var mergerBragg = mergedBragg;
+}
+
+// Merge both sets together so that it is ready for export
+var merger = mergerWater.merge(mergerBragg);
+
+
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------------ (5). EXPORT DATA ------------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Export the FeatureCollection to a CSV file to Google Drive.
+Export.table.toDrive({
+  collection: merger,
+  description:'VV_VH_Ent_GLCM_Kpong_2020_Scl_10',
+  folder: 'Task 50',
+  fileFormat: 'CSV'
+});

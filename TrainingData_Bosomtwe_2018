@@ -1,0 +1,986 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var selectedLakes = ee.FeatureCollection("projects/ee-cvanmeursdata/assets/Thesis/Selected_Lakes");
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+
+// Import geometry and select lake. 
+var lakeBosomtwe = ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 15892)).first());
+
+// Set center and add lake outline. 
+Map.centerObject(lakeBosomtwe, 13);
+Map.addLayer(lakeBosomtwe, {}, 'Lake Outline');
+
+// Function to set class to bragg/water
+var setClassWater = function(feature) {
+  return feature.set('class', 1);
+};
+var setClassBragg = function(feature) {
+  return feature.set('class', 2);
+};
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------- (1). SELECTION BRAGG PATCHES ------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------------------- 2018 ------------------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// JANUARY
+
+// Jan 3rd
+var waterBosomtwe20180103 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 9th
+var waterBosomtwe20180109 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 15th
+var waterBosomtwe20180115 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 21nd
+var waterBosomtwe20180121 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 27th
+var waterBosomtwe20180127 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+        
+// FEBRUARY
+
+// Feb 2nd
+var waterBosomtwe20180202 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 8th
+var waterBosomtwe20180208 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 14th
+var waterBosomtwe20180214 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 20th
+var waterBosomtwe20180220 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 26th
+var waterBosomtwe20180226 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// MARCH
+
+// Mar 4th
+var waterBosomtwe20180304 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 10th
+var waterBosomtwe20180310 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 16th
+var waterBosomtwe20180316 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 22nd
+var braggBosomtwe20180322 = ee.Feature(
+              ee.Geometry.MultiPolygon(
+        [[[[1.4050161837529895, 6.491551636214181],
+           [1.4024412630986927, 6.496838992514193],
+           [1.4019262789678333, 6.501785178750977],
+           [1.398836374182677, 6.5069018719250336],
+           [1.3955748080205677, 6.510995188942269],
+           [1.3935148714971302, 6.513212388392588],
+           [1.3926565646123645, 6.520034479092928],
+           [1.3966047762822864, 6.524468788271099],
+           [1.401411294836974, 6.52753867163464],
+           [1.4032995699834583, 6.523274939660017],
+           [1.4007246493291614, 6.520034479092928],
+           [1.4038145541143177, 6.513382941790756],
+           [1.4067327975225208, 6.509289644239915],
+           [1.4103376864385364, 6.503661305630238],
+           [1.409822702307677, 6.50007960278512],
+           [1.409822702307677, 6.497350669208063],
+           [1.411024331946349, 6.494962840184923],
+           [1.4077627657842395, 6.495133399776635],
+           [1.4060461520147083, 6.4963273152999585]]],
+         [[[1.3993513583135364, 6.47381300331492],
+           [1.3955748080205677, 6.474324703385727],
+           [1.390596628088927, 6.474495269960753],
+           [1.3873350619268177, 6.476200932541461],
+           [1.3844168185186145, 6.478929980681104],
+           [1.383730173010802, 6.481317885694337],
+           [1.3787519930791614, 6.4842174694389545],
+           [1.376692056555724, 6.487287598754801],
+           [1.3765203951787708, 6.4922338788574505],
+           [1.3773787020635364, 6.495133399776635],
+           [1.3777220248174427, 6.50144406402066],
+           [1.3806402682256458, 6.504684644612686],
+           [1.3844168185186145, 6.509460198970849],
+           [1.3880217074346302, 6.509289644239915],
+           [1.391969919104552, 6.505537425506133],
+           [1.3964331149053333, 6.499056254428826],
+           [1.400209665198302, 6.492063318283303],
+           [1.4005529879522083, 6.487969847173818],
+           [1.401411294836974, 6.483535215940388],
+           [1.4034712313604114, 6.482341270096379],
+           [1.4031279086065052, 6.475177535684609]]]]),
+        {
+          "class": 2,
+          "system:index": "0"
+        }
+);
+
+var waterBosomtwe20180322 = ee.Feature(lakeBosomtwe.difference({'right': braggBosomtwe20180322, 'maxError': 1}).set("class", 1)
+);
+
+// Mar 28th
+
+var waterBosomtwe20180328 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// APRIL
+
+// Apr 3rd
+var waterBosomtwe20180403 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 9th
+var waterBosomtwe20180409 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 15th
+var waterBosomtwe20180415 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr  21st
+var waterBosomtwe20180421 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 27th
+var waterBosomtwe20180427 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// MAY
+
+// May 3rd
+var waterBosomtwe20180503 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 9th
+var waterBosomtwe20180509 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 15th
+var waterBosomtwe20180515 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 21st
+var waterBosomtwe20180521 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 27th
+var waterBosomtwe20180527 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// JUNE
+
+// Jun 8th
+var waterBosomtwe20180608 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jun 20th
+var waterBosomtwe20180620 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// JULY
+
+// Jul 2nd
+var waterBosomtwe20180702 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 14th
+var waterBosomtwe20180714 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 20th
+var braggBosomtwe20180720 = ee.Feature(
+                            ee.Geometry.MultiPolygon(
+        [[[[1.404930353064513, 6.499886477122702],
+           [1.4040720461797473, 6.497925056857495],
+           [1.4025270937871692, 6.497157542497844],
+           [1.4013254641484973, 6.495110831814746],
+           [1.400038003821349, 6.49459915284328],
+           [1.398235559363341, 6.493831633410721],
+           [1.3965189455938098, 6.492637711967291],
+           [1.3957464693975208, 6.491187946408169],
+           [1.3950598238897083, 6.490420421775275],
+           [1.393343210120177, 6.490846824493513],
+           [1.3938581942510364, 6.49221131076558],
+           [1.3954031466436145, 6.494087473351617],
+           [1.3973772524785755, 6.495366671105396],
+           [1.3978922366094348, 6.498010336158507],
+           [1.3993513583135364, 6.499374803008363],
+           [1.4011538027715442, 6.498948407515403],
+           [1.4031279086065052, 6.501165660130807],
+           [1.4047586916875598, 6.500995102584408]]],
+         [[[1.3759195803594348, 6.494684432707976],
+           [1.376692056555724, 6.497072263052268],
+           [1.3786661623906848, 6.496901704117761],
+           [1.3810694216680286, 6.497669218867718],
+           [1.3811552523565052, 6.495963628944428],
+           [1.3830435275029895, 6.494087473351617],
+           [1.3850176333379505, 6.49647530652851],
+           [1.3862192629766223, 6.494940272215401],
+           [1.3851892947149036, 6.493064112807857],
+           [1.3838160036992786, 6.491017385479721],
+           [1.3822710513067005, 6.49076154397875],
+           [1.3812410830449817, 6.491784909202759],
+           [1.378065347571349, 6.491443787692505],
+           [1.376091241736388, 6.491102665951164]]],
+         [[[1.380382776160216, 6.482659829249161],
+           [1.380811929602599, 6.4859005307709525],
+           [1.3807260989141223, 6.488288402769213],
+           [1.382185220618224, 6.488800088153631],
+           [1.3833010195684192, 6.486582781067972],
+           [1.3853609560918567, 6.48581524941889],
+           [1.3881933688115833, 6.48598581210859],
+           [1.3881075381231067, 6.482318701561406],
+           [1.3883650301885364, 6.4805277774149035],
+           [1.384931802649474, 6.480357212878803],
+           [1.382957696814513, 6.478907411993502],
+           [1.382185220618224, 6.480868906314069]]],
+         [[[1.4208948611211536, 6.474216851179277],
+           [1.4193499087285755, 6.473790434398521],
+           [1.418062448401427, 6.474984400477053],
+           [1.4166033266973255, 6.474899117279378],
+           [1.4167749880742786, 6.477201758559435],
+           [1.4190924166631458, 6.4767753443001075]]],
+         [[[1.440807580847716, 6.478054585997156],
+           [1.4395201205205677, 6.47609308073585],
+           [1.437889337439513, 6.475240249983671],
+           [1.4358294009160755, 6.4740462845101945],
+           [1.4340269564580677, 6.473364017257675],
+           [1.4323103426885364, 6.474984400477053],
+           [1.4323103426885364, 6.479504389333228],
+           [1.4323103426885364, 6.483000956706137],
+           [1.4352285860967395, 6.482148137630984],
+           [1.4372026919317005, 6.480101365966525]]],
+         [[[1.3827431200933216, 6.499843837633061],
+           [1.3825714587163684, 6.501165660130807],
+           [1.3816273211431263, 6.5012509388823085],
+           [1.3816702364873645, 6.501719971756989],
+           [1.380683183569884, 6.501549414398638],
+           [1.3807260989141223, 6.50044079015908],
+           [1.3792240618657825, 6.500270232366824],
+           [1.3797390459966419, 6.501549414398638],
+           [1.3797819613408802, 6.502956510874509],
+           [1.381584405798888, 6.50274331469194],
+           [1.3828289507817981, 6.502828593175817],
+           [1.3831722735357044, 6.5021463648997235],
+           [1.383429765601134, 6.500653987318066],
+           [1.3830435275029895, 6.499289523938692]]]]), 
+        {
+          "class": 2,
+          "system:index": "0"
+        }
+);
+
+var waterBosomtwe20180720 = ee.Feature(lakeBosomtwe.difference({'right': braggBosomtwe20180720, 'maxError': 1})).set("class", 1);
+
+// Jul 26th
+var waterBosomtwe20180726 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// AUGUST
+
+// Aug 1st
+var waterBosomtwe20180801 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 7th
+var waterBosomtwe20180807 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 13th
+var waterBosomtwe20180813 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 19th
+var waterBosomtwe20180819 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 25th
+var waterBosomtwe20180825 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 31st
+var waterBosomtwe20180831 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// SEPTEMBER
+
+// Sep 6th
+var braggBosomtwe20180906 = ee.Feature(
+              ee.Geometry.MultiPolygon(
+        [[[[1.4213240145635364, 6.504599366443721],
+           [1.4210665224981067, 6.507072427466831],
+           [1.4184057711553333, 6.506560760667717],
+           [1.417461633582091, 6.505452147481923],
+           [1.417461633582091, 6.501358785301918],
+           [1.4161741732549427, 6.499312091713119],
+           [1.4123117922734973, 6.501529342724949],
+           [1.4129984377813098, 6.504855200907155],
+           [1.4142858981084583, 6.506560760667717],
+           [1.4108526705693958, 6.508266314637863],
+           [1.4101660250615833, 6.510739357606261],
+           [1.4105093478154895, 6.51432098444457],
+           [1.4127409457158802, 6.516282340690033],
+           [1.4146292208623645, 6.5161970644909895],
+           [1.4162600039434192, 6.515173748971735],
+           [1.4158308505010364, 6.512530174220271],
+           [1.4176332949590442, 6.5126154510425245],
+           [1.4204657076787708, 6.5152590253447284],
+           [1.423555612463927, 6.514917919765771],
+           [1.4251863955449817, 6.511251020147884],
+           [1.4228689669561145, 6.509886585544745],
+           [1.4234697817754505, 6.508266314637863],
+           [1.4266455172490833, 6.506134371270379],
+           [1.4263880251836536, 6.505196313322435],
+           [1.4244997500371692, 6.50587853745826]]],
+         [[[1.4165740508349511, 6.474851412691015],
+           [1.4152007598193261, 6.474936695896757],
+           [1.4133124846728418, 6.475704244100106],
+           [1.4119391936572168, 6.4746808462363035],
+           [1.4115958709033105, 6.473486879439931],
+           [1.4080768126757714, 6.474169146526438],
+           [1.4062743682177636, 6.47365744629799],
+           [1.4033561248095605, 6.473145745550983],
+           [1.4012103575976464, 6.472975178520094],
+           [1.3982062835009668, 6.472037058820434],
+           [1.3953738707812402, 6.472889894983028],
+           [1.3917689818652246, 6.473231029044819],
+           [1.388936569145498, 6.473486879439931],
+           [1.3865333098681543, 6.475107262265022],
+           [1.383443405082998, 6.476898205652149],
+           [1.3825850981982324, 6.480735920078832],
+           [1.384215881279287, 6.481332895254596],
+           [1.3877349395068261, 6.479883097173515],
+           [1.389537383964834, 6.481247613129888],
+           [1.3913398284228418, 6.479712532419432],
+           [1.3933997649462793, 6.47877442524117],
+           [1.3940005797656152, 6.4800536618699285],
+           [1.3954597014697168, 6.4792008378111765],
+           [1.3973479766162011, 6.479371402738268],
+           [1.3994937438281152, 6.478433294925702],
+           [1.4003520507128808, 6.479456685180181],
+           [1.399922897270498, 6.481674023609215],
+           [1.397948791435537, 6.482697407288507],
+           [1.3962321776660058, 6.485511701695883],
+           [1.3982062835009668, 6.483806070597198],
+           [1.400523712089834, 6.4834649436849485],
+           [1.4011245269091699, 6.485426420278021],
+           [1.4024978179247949, 6.483635507169927],
+           [1.4031844634326074, 6.481929869723744],
+           [1.4055877227099511, 6.481844587699987],
+           [1.406188537529287, 6.484061915629907],
+           [1.4076476592333886, 6.484488323729224],
+           [1.4064460295947168, 6.486876202419041],
+           [1.4093642730029199, 6.485767545862885],
+           [1.4109950560839746, 6.485767545862885],
+           [1.4117675322802636, 6.484573605305796],
+           [1.411510040214834, 6.482270997674545],
+           [1.4100509185107324, 6.48218571570847],
+           [1.4091926116259668, 6.480394791089732],
+           [1.4115958709033105, 6.47894499031243],
+           [1.4152865905078027, 6.478348012310794],
+           [1.4174323577197168, 6.475960093241863]]],
+         [[[1.4077334899218652, 6.488667104010831],
+           [1.4085917968066308, 6.491054962895829],
+           [1.4118533629687402, 6.491566645469654],
+           [1.4108233947070214, 6.48986103486841],
+           [1.4097934264453027, 6.488922946575683]]],
+         [[[1.382070114067373, 6.490202157450765],
+           [1.382070114067373, 6.488837665735168],
+           [1.3806109923632714, 6.4875584513950875],
+           [1.3784652251513574, 6.4875584513950875],
+           [1.3790660399706933, 6.489264069793348]]],
+         [[[1.3782935637744043, 6.494807289694261],
+           [1.3790660399706933, 6.492163607815265],
+           [1.3788085479052636, 6.489519912055018],
+           [1.3760619658740136, 6.490799121413955],
+           [1.3761477965624902, 6.493869210616786]]]]),
+        {
+          "class": 2,
+          "system:index": "0"
+        }
+);
+
+var waterBosomtwe20180906 = ee.Feature(lakeBosomtwe.difference({'right': braggBosomtwe20180906, 'maxError': 1})).set("class", 1);
+
+// Sep 12th
+var waterBosomtwe20180912 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 18th
+
+var waterBosomtwe20180918 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 24th
+var waterBosomtwe20180924 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 30th
+var braggBosomtwe20180930 = ee.Feature(
+                           ee.Geometry.Polygon(
+        [[[1.4307664626800198, 6.514365028205983],
+          [1.4302514785491605, 6.512062556945977],
+          [1.430337309237637, 6.510698124548488],
+          [1.431538938876309, 6.5105275702380485],
+          [1.4325689071380276, 6.510868678800977],
+          [1.434457182284512, 6.508395636469491],
+          [1.435229658480801, 6.507287027333076],
+          [1.4354013198577542, 6.505155079809587],
+          [1.4349721664153714, 6.503449515277799],
+          [1.4340280288421292, 6.503705350326568],
+          [1.4335130447112698, 6.501232272734067],
+          [1.4341996902190823, 6.500550042291748],
+          [1.4353154891692776, 6.498844462136553],
+          [1.4354871505462308, 6.496797758315986],
+          [1.4340280288421292, 6.494068806937569],
+          [1.4351438277923245, 6.492619045499467],
+          [1.4340280288421292, 6.491339840763592],
+          [1.4317964309417386, 6.491339840763592],
+          [1.4313672774993558, 6.492533765284859],
+          [1.4320539230071683, 6.4946657663160785],
+          [1.433083891268887, 6.496286081059819],
+          [1.4327405685149808, 6.497821111267176],
+          [1.4307664626800198, 6.4972241556319625],
+          [1.428363203402676, 6.49765055258654],
+          [1.4263890975677151, 6.4985033454114305],
+          [1.4252732986175198, 6.4985033454114305],
+          [1.4245008224212308, 6.4998678109238],
+          [1.4255307906829495, 6.500464763421371],
+          [1.4259599441253323, 6.5017439449582906],
+          [1.4239000076018948, 6.502852566324244],
+          [1.4225267165862698, 6.503278958506272],
+          [1.4202951186858792, 6.503193680098791],
+          [1.4200376266204495, 6.505069801720481],
+          [1.419951795931973, 6.506604805109909],
+          [1.419179319735684, 6.5076281380972025],
+          [1.419951795931973, 6.509504243158775],
+          [1.421325086947598, 6.508651468999618],
+          [1.4237283462249417, 6.507798693392406],
+          [1.4243291610442776, 6.506007859904613],
+          [1.4266465896331448, 6.506775360752568],
+          [1.427419065829434, 6.508651468999618],
+          [1.426045774813809, 6.511209787132132],
+          [1.428964018222012, 6.513512262304361]]]),
+        {
+          "class": 2,
+          "system:index": "0"
+        }
+);
+
+var waterBosomtwe20180930 = ee.Feature(lakeBosomtwe.difference({'right': braggBosomtwe20180930, 'maxError': 1})).set("class", 1);
+
+// OCTOBER
+
+// Oct 6th
+var waterBosomtwe20181006 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 12th
+var waterBosomtwe20181012 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 18th
+var waterBosomtwe20181018 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 24th
+var waterBosomtwe20181024 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 30th
+var waterBosomtwe20181030 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// NOVEMBER
+
+// Nov 5th
+var waterBosomtwe20181105 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 11th
+var waterBosomtwe20181111 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 17th
+var waterBosomtwe20181117 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 23rd
+var waterBosomtwe20181123 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 29th
+var waterBosomtwe20181129 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// DECEMBER
+
+// Dec 5th
+var waterBosomtwe20181205 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 11nd
+var waterBosomtwe20181211 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 17th
+var waterBosomtwe20181217 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 23rd
+var waterBosomtwe20181223 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 29th
+var waterBosomtwe20181229 = ee.Feature(lakeBosomtwe.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// --------------------------------- (b). compile lists ------------------------------------------- //
+
+var waterBosomtwe2018 = ee.List([
+waterBosomtwe20180103,
+waterBosomtwe20180115,
+waterBosomtwe20180127,
+waterBosomtwe20180208,
+waterBosomtwe20180220,
+waterBosomtwe20180304,
+waterBosomtwe20180316,
+waterBosomtwe20180328,
+waterBosomtwe20180409,
+waterBosomtwe20180421,
+waterBosomtwe20180503,
+waterBosomtwe20180515,
+waterBosomtwe20180527,
+waterBosomtwe20180608,
+waterBosomtwe20180620,
+waterBosomtwe20180702,
+waterBosomtwe20180714,
+waterBosomtwe20180726,
+waterBosomtwe20180807,
+waterBosomtwe20180819,
+waterBosomtwe20180831,
+waterBosomtwe20180912,
+waterBosomtwe20180924,
+waterBosomtwe20181006,
+waterBosomtwe20181018,
+waterBosomtwe20181030,
+waterBosomtwe20181111,
+waterBosomtwe20181123,
+waterBosomtwe20181205,
+waterBosomtwe20181217,
+waterBosomtwe20181229,
+waterBosomtwe20180109,
+waterBosomtwe20180121,
+waterBosomtwe20180202,
+waterBosomtwe20180214,
+waterBosomtwe20180226,
+waterBosomtwe20180310,
+waterBosomtwe20180322,
+waterBosomtwe20180403,
+waterBosomtwe20180415,
+waterBosomtwe20180427,
+waterBosomtwe20180509,
+waterBosomtwe20180521,
+waterBosomtwe20180720,
+waterBosomtwe20180801,
+waterBosomtwe20180813,
+waterBosomtwe20180825,
+waterBosomtwe20180906,
+waterBosomtwe20180918,
+waterBosomtwe20180930,
+waterBosomtwe20181012,
+waterBosomtwe20181024,
+waterBosomtwe20181105,
+waterBosomtwe20181117,
+waterBosomtwe20181129,
+waterBosomtwe20181211,
+waterBosomtwe20181223,
+]);
+var braggBosomtwe2018 = ee.List([
+  braggBosomtwe20180322,
+  braggBosomtwe20180720,
+  braggBosomtwe20180906,
+  braggBosomtwe20180930,
+]);
+
+// ---------------------------------- (c). sample lists ------------------------------------------- //
+
+// Sample the lists with random points, so that they can be used in classification. 
+var randomPointsWater = waterBosomtwe2018.map(function(listElement) {
+  return ee.FeatureCollection.randomPoints({
+    region: ee.Feature(listElement).geometry(),
+    points: 50, 
+    seed: 0, 
+    maxError: 1,
+  }).map(setClassWater);
+});
+var randomPointsBragg = braggBosomtwe2018.map(function(listElement) {
+  return ee.FeatureCollection.randomPoints({
+    region: ee.Feature(listElement).geometry(),
+    points: 50, 
+    seed: 0, 
+    maxError: 1,
+  }).map(setClassBragg);
+});
+
+// ------------------------------------------------------------------------------------------------ //
+// --------------------------- (2). COMPUTE SENTINEL-1 IMAGERY ------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Define a neighborhood with a kernel.
+var kernel = ee.Kernel.circle({radius: 4});
+
+// Function to compute Entropy. 
+var computeEntropy = function (image) {
+  var ent =  ee.Image(image.toInt32()).entropy(kernel).rename('VV_E', 'VH_E');
+  return image.addBands(ent);
+};
+
+// Function to compute GLCM Features. 
+var computeGlcm = function (image) {
+  var glcm = ee.Image(image.toInt32()).glcmTexture(4); 
+  return image.addBands(glcm);
+};
+
+// Compile list of the selected Bands: VV, VH, Ent, GLCM.
+var selectedBands = ee.List([
+  "VV",
+  "VH",
+  "VV_E",
+  "VH_E",
+  "VV_asm",
+  "VV_contrast",
+  "VV_corr",
+  "VV_var",
+  "VV_idm",
+  "VV_savg",
+  "VV_svar",
+  "VV_sent",
+  "VV_ent",
+  "VV_dvar",
+  "VV_dent",
+  "VV_diss",
+  "VV_inertia",
+  "VV_shade",
+  "VV_prom",
+  "VH_asm",
+  "VH_contrast",
+  "VH_corr",
+  "VH_var",
+  "VH_idm",
+  "VH_savg",
+  "VH_svar",
+  "VH_sent",
+  "VH_ent",
+  "VH_dvar",
+  "VH_dent",
+  "VH_diss",
+  "VH_inertia",
+  "VH_shade",
+  "VH_prom",
+]);
+
+// Total Sentinel1 Imagery for 2018 - 2019. 
+var Sentinel = ee.ImageCollection('COPERNICUS/S1_GRD')
+          .filterBounds(lakeBosomtwe.geometry())
+          .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+          .filter(ee.Filter.date('2018-01-01', '2019-01-01'))
+          .select('VV', 'VH')
+          .map(computeEntropy)
+          .map(computeGlcm)
+          .select(selectedBands);
+
+// ImageCollection to List.
+var S12018 = Sentinel.toList(Sentinel.size());
+
+// Bragg Dates for Sentinel-1 Imagery 2018-2019.
+var bD = ee.List(['2018-03-22', '2018-07-20', '2018-09-06', '2018-09-30']);
+var bDn = bD.map(function(date) {
+  var nextDate = ee.Date(date).advance(1, 'day');
+  var dateCombo = [ee.Date(date), nextDate];
+  return dateCombo;
+});
+
+// Bragg Sentinel-1 Imagery for 2018-2019, compiled from the Bragg Dates. 
+var SB12018 = bDn.map(function(date) {
+  return ee.Image(Sentinel.filter(ee.Filter.date(ee.List(date).get(0), ee.List(date).get(1))).first());
+});
+
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------- (3). COMPUTE SNIC IMAGERY -------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// function to compute SNIC superpixels. 
+var afn_SNIC = function(imageOriginal) {
+  
+  // Adjustable Superpixel Seed and SNIC segmentation Parameters:
+  var superPixelSize = 50;
+  var compactness = 1;
+  var connectivity = 4;
+  var seedShape = 'square';
+  var neighborhoodSize = 2 * superPixelSize;
+  
+  // Creates seed grid. 
+    var theSeeds = ee.Algorithms.Image.Segmentation.seedGrid(
+        superPixelSize, seedShape);
+  
+  // Preforms actual SNIC Segmentation. 
+    var snic = ee.Algorithms.Image.Segmentation.SNIC({
+        image: imageOriginal,
+        size: superPixelSize,
+        compactness: compactness,
+        connectivity: connectivity,
+        neighborhoodSize: neighborhoodSize,
+        seeds: theSeeds
+    });
+  
+  // Copies 'system:time_start' parameter to the computed SNIC imagery. 
+    var theStack = snic.addBands(theSeeds).copyProperties({
+      source: imageOriginal, 
+      properties: ['system:time_start']
+    });
+    return (theStack);
+};
+
+
+// Create SNIC images for all dates, and seperately for all Bragg dates.  
+var SNICsWater = S12018.map(afn_SNIC);
+var SNICsBragg = SB12018.map(afn_SNIC);
+
+// Compute list of band names. 
+var propertyList = ee.Image(SNICsWater.get(0)).bandNames();//.slice(1, 41);
+
+// ------------------------------------------------------------------------------------------------ //
+// ---------------------------------- (5). OVERLAY PIXELS ----------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// Zip together SNIC Imagery with the random water samples.
+var waterPredictor = ee.List(randomPointsWater).zip(SNICsWater);
+
+// Overlay and SNIC values for water by applying reduceRegions. 
+var fcSamplesWater = waterPredictor.map(function(imagePair) {
+  return ee.Image(ee.List(imagePair).get(1)).select(propertyList).reduceRegions({
+    collection: ee.FeatureCollection(ee.List(imagePair).get(0)),
+    reducer: ee.Reducer.first(), 
+    scale: 20,
+  });
+});
+
+
+// Zip together SNIC Imagery with the random Bragg samples.
+var BraggPredictor = ee.List(randomPointsBragg).zip(SNICsBragg);
+
+// Overlay and SNIC values for Bragg by applying reduceRegions. 
+var fcSamplesBragg = BraggPredictor.map(function(imagePair) {
+  return ee.Image(ee.List(imagePair).get(1)).select(propertyList).reduceRegions({
+    collection: ee.FeatureCollection(ee.List(imagePair).get(0)),
+    reducer: ee.Reducer.first(), 
+    scale: 20,
+  });
+});
+
+
+// Merge all waterTraining instances together to create one water data training set. 
+var mergerWater = ee.FeatureCollection([]);
+for (var i=0; i <=56; i++){ // The value of 56 is dependent on the size of this years ImageCollection.
+  var mergedWater = mergerWater.merge(ee.FeatureCollection(ee.List(fcSamplesWater).get(i)));
+  var mergerWater = mergedWater;
+}
+
+// Merge all braggTraining instances together to create one Bragg data training set. 
+var mergerBragg = ee.FeatureCollection([]);
+for (var i=0; i <=3; i++){ // The value of 3 is dependent on the amount of Bragg scattering present in that year.
+  var mergedBragg = mergerBragg.merge(ee.FeatureCollection(ee.List(fcSamplesBragg).get(i)));
+  var mergerBragg = mergedBragg;
+}
+
+// Merge both sets together so that it is ready for export
+var merger = mergerWater.merge(mergerBragg);
+
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------------ (5). EXPORT DATA ------------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Export the FeatureCollection to a CSV file to Google Drive.
+Export.table.toDrive({
+  collection: merger,
+  description:'VV_VH_Ent_GLCM_Bosomtwe_2018_Scl_20',
+  folder: 'Task 50',
+  fileFormat: 'CSV'
+});

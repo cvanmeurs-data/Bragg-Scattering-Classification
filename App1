@@ -1,0 +1,939 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var selectedLakes = ee.FeatureCollection("projects/ee-cvanmeursdata/assets/Thesis/Selected_Lakes"),
+    RF1 = ee.FeatureCollection("projects/ee-cvanmeursdata-thesis/assets/RandomForest_1");
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+
+// ------------------------------------------------------------------------------------------------ //
+// ---------------------------------  GLOBAL VARIABLES -------------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// Local variables exist only during the function's executions, 
+// while global variables remain in memory for the duration of the program.
+
+var aoi,
+    AOI,
+    areaOfInterest,
+    geometry,
+    input,
+    dates,
+    image, 
+    angleImage, 
+    classImage, 
+    bufferSeed,
+    classificationResult,
+    areaChart, 
+    downloadArgs,
+    featDict, 
+    classAreaFc,
+    classGeometry,
+    classified;
+
+// ------------------------------------------------------------------------------------------------ //
+// --------------------------------  IMPORTS AND DECODES ------------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Import Lakes. 
+var lakeKpong = ee.Feature(ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 15904)).first()).buffer(-450).buffer(300));
+var lakeBosomtwe = ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 15892)).first());
+var lakeTono = ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 15822)).first());
+var lakeAvu = ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 180424)).first());
+var lakeVea = ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 179707)).first());
+var lakeVoggo = ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 179833)).first());
+
+// Bands used in classification.
+var bands = ee.List([
+"VH_E_mean",
+"VH_asm_mean",
+"VH_contrast_mean",	
+"VH_corr_mean",	
+"VH_dent_mean",	
+"VH_diss_mean",	
+"VH_dvar_mean",	
+"VH_ent_mean",
+"VH_idm_mean",	
+"VH_inertia_mean",	
+"VH_mean",
+"VH_prom_mean",	
+"VH_savg_mean",	
+"VH_sent_mean",	
+"VH_shade_mean",	
+"VH_svar_mean",	
+"VH_var_mean",
+"VV_E_mean",	
+"VV_asm_mean",	
+"VV_contrast_mean",	
+"VV_corr_mean",	
+"VV_dent_mean",	
+"VV_diss_mean",
+"VV_dvar_mean",	
+"VV_ent_mean",	
+"VV_idm_mean",
+"VV_inertia_mean",
+"VV_mean",
+"VV_prom_mean",	
+"VV_savg_mean",	
+"VV_sent_mean",	
+"VV_shade_mean",	
+"VV_svar_mean",	
+"VV_var_mean",	
+]);
+
+// Functions. 
+var requiredFunctions = require('users/cvanmeursdata/BraggScattering:Function/Functions');
+var featureCollection = ee.FeatureCollection(RF1);
+
+// Decode classifier. 
+var decisionTrees = requiredFunctions.decodeFeatureCollection(featureCollection);
+var classifier = ee.Classifier.decisionTreeEnsemble(decisionTrees);
+
+// import tools
+var tools = require('users/fitoprincipe/geetools:tools');
+
+// ------------------------------------------------------------------------------------------------ //
+// ---------------------------------------  INIT -------------------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+var init = function () {
+  
+// ------------------------------------------------------------------------------------------------ //
+// -------------------------------  BASIC MAP AND PANELS ------------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+  
+  // Clear the map.  
+  // ui.root.clear(); 
+  
+  // Set up a terrain-type background
+  Map.setOptions('TERRAIN');
+  // Center the map to Bosomtwe as a default.
+  Map.centerObject(lakeBosomtwe, 13);
+  // Change style of cursor to 'crosshair'
+  Map.style().set('cursor', 'crosshair');
+  
+  // Add main panel on the left-hand side. 
+  var mainPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'), 
+    style: {width: '300px', 
+            backgroundColor: 'white'
+    }
+  });
+  
+  // Insert the mainPanel.
+  ui.root.insert(0, mainPanel);
+  
+  // Add information panel on the right-hand side. 
+  var infoPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'),
+    style: {width: '250px', 
+            backgroundColor: '#F0F8FF'
+    }
+  });
+  
+  // Insert the infoPanel. 
+  ui.root.insert(2, infoPanel); 
+  
+    // Define title and description.
+  var intro = ui.Label('{C}   -   Bragg Identification ',
+    {fontWeight: 'lighter', fontSize: '24px', margin: '10px 10px'}
+  );
+  var subtitle = ui.Label('Usage of 10m Dual-Pol Polarization (VV/VH) Sentinel-1 Imagery'+
+    ' to insepct and detect Bragg Scattering over water bodies.'+
+    ' Select over multiple lake geometries and inspect.', 
+    {fontWeight: 'lighter', fontSize: '12px', margin: '5px 5px'});
+  
+  // Define infoPanel header and text.
+  var info = ui.Label('{C}   -   Information',
+    {fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '16px', margin: '10px 10px', backgroundColor: '#F0F8FF', stretch: 'horizontal'
+    }
+  );
+  
+  // Add title and description to the mainPanel.  
+  mainPanel.add(intro).add(subtitle);
+  // Add basic information to infoPanel
+  infoPanel.add(info);
+
+// ------------------------------------------------------------------------------------------------ //
+// -------------------------------  ADD AREAS OF INTEREST ----------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+  
+  // Study areas previously defined. Set labels for each region. 
+  var bosom = lakeBosomtwe.geometry(), 
+      kpong = lakeKpong.geometry(),
+      tono  = lakeTono.geometry(),
+      avu   = lakeAvu.geometry(),
+      vea   = lakeVea.geometry(),
+      voggo = lakeVoggo.geometry();
+  
+  var BOSOM = 'Lake Bosomtwe', 
+      KPONG = 'Reservoir Kpong',
+      TONO  = 'Lake Tono',
+      AVU   = 'Lake Avu',
+      VEA   = 'Lake Vea',
+      VOGGO = 'Lake Voggo';
+  
+  // Define the drop-down list for the AOI
+  var selectAoi = ui.Select({
+    items:[BOSOM, KPONG, TONO, AVU, VEA, VOGGO],
+    placeholder: BOSOM,
+    value: BOSOM
+    });
+  
+  // Add a label for AOI selection. 
+  var selectSIAOI = ui.Label({value: 'Select area of interest',
+                              style: {fontWeight: 'lighter', fontSize: '18px'}});
+  
+  // Add the select AOI label and drop-down list to the mainPanel. 
+  mainPanel.add(selectSIAOI)
+           .add(selectAoi);
+
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------------  UPDATE INFO PANEL ------------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+  
+  
+/*
+
+  The infoPanel displays information about the selected imagery and classification results, and allows 
+  the user to download that information to their local drive. It displays
+    - Coordinates of selected location. 
+    - Orbit pass
+    - Platform number (Sentinel-1A or Sentinel-1B)
+    - Resolution of the imagery
+    - Angle
+
+*/
+  
+  // Create a seperate panel to display coordinates.  
+  var coordsPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'), 
+    style: {width: '200px', backgroundColor: '#F0F8FF'}
+  });
+  
+  // Since the default setting pan to Bosomtwe, we set the default coordinates to Bosomtwe. Find coordinates and create a label. 
+  var initialCoordinates = bosom.centroid().coordinates();
+  var initialCoordinatesInfo = ui.Label('Coordinates: ' + ee.Number(initialCoordinates.get(0)).format('%.3f').getInfo() + '° N' + ee.Number(initialCoordinates.get(1)).format('%.3f').getInfo() + '° W', 
+  {fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+  
+  // Add the coordinates-label to the coordsPanel. 
+  coordsPanel.add(initialCoordinatesInfo);
+  // Add the coordsPanel to the larger infoPanel. 
+  infoPanel.add(coordsPanel);
+  
+  // Create a panel for Orbit/Platform/Resolution/Angle information. 
+  var orbitPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'), 
+    style: {width: '200px', backgroundColor: '#F0F8FF'}
+  });
+  
+  // Add the orbitPanel to the main infoPanel. 
+  infoPanel.add(orbitPanel);
+  
+  // Create a panel for Download Buttons.  
+  var downloadPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('horizontal'), 
+    style: {width: '220px', backgroundColor: '#F0F8FF'}
+  });
+  
+    // Create a extra panel for Sentinel-1 Buttons.  
+  var sentinelPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'), 
+    style: {backgroundColor: '#F0F8FF'}
+  });
+    // Create a extra panel for Classification Buttons.  
+  var classPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'), 
+    style: {backgroundColor: '#F0F8FF'}
+  });
+  
+  // Add the sentinelPanel and the classPanel to the downloadPanel. 
+  downloadPanel.add(sentinelPanel);
+  downloadPanel.add(classPanel);
+  
+  // Add the downloadPanel to the main infoPanel. 
+  infoPanel.add(downloadPanel);
+  
+  // Create a panel for Charting.  
+  var chartPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('vertical'), 
+    style: {width: '220px', backgroundColor: '#F0F8FF'}
+  });
+  
+  // Add the chartPanel to the main infoPanel. 
+  infoPanel.add(chartPanel);
+  
+// ------------------------------------------------------------------------------------------------ //
+// -------------------------------  FIND AREAS OF INTEREST ---------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+/*
+
+  Function: setAreaOfInterest()
+
+  The function that is called once the 'applyGeometryFilter' is called. Takes the value that is selected 
+  geometry and pans to the newly selected location. The bufferSeed value is computed and is used later on
+  when the outline-finding algorithm is employed. 
+  
+  Global variables are used for the aoi, areaOfInterest and bufferSeed. 
+
+*/
+
+  function setAreaOfInterest(){
+      aoi = selectAoi.getValue();
+      if (aoi == BOSOM){
+          areaOfInterest = bosom;
+          bufferSeed = ee.Number(1000);
+      }//sets the area to Bosomtwe Lake
+      else if(aoi == KPONG){
+          areaOfInterest = kpong;
+          bufferSeed = ee.Number(700);
+      }//sets the area of interest to Kpong Lake
+      else if(aoi == TONO){
+          areaOfInterest = tono;
+          bufferSeed = ee.Number(300);
+      }//sets the area of interest to Tono Lake
+      else if(aoi == AVU){
+          areaOfInterest = avu;
+          bufferSeed = ee.Number(300);
+      }//sets the area of interest to Avu Lake
+      else if(aoi == VEA){
+          areaOfInterest = vea;
+          bufferSeed = ee.Number(300);
+      }//sets the area of interest to Vea Lake
+      else if(aoi == VOGGO){
+          areaOfInterest = voggo;
+          bufferSeed = ee.Number(400);
+      }//sets the area of interest to Voggo Lake
+      
+      var bufferSize = areaOfInterest.centroid().buffer(bufferSeed);
+  }
+  
+  // Change location based on selected geometry. 
+
+/*
+
+  Function: applyGeometryFilter()
+
+  The function that is called once the 'selectAoi' is changed. Runs the 'setAreaOfInterest' function
+  and updates the coordiantes on the infoPanel. Also updates the map center to the newly selected geometry.
+
+*/
+
+  function applyGeometryFilter(){
+  
+    setAreaOfInterest();
+    
+    // Update coordinates on coordinatesPanel on the infoPanel. 
+    // Compute coordinates and set as an ui.Label()
+    var coordinates = areaOfInterest.centroid().coordinates();
+    var coordinatesInfo = ui.Label('Coordinates: ' + ee.Number(coordinates.get(0)).format('%.3f').getInfo() + '° N' + ee.Number(coordinates.get(1)).format('%.3f').getInfo() + '° W', 
+    {fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+
+    // Add the coordinate setting to the main infoPanel. 
+    coordsPanel.clear();
+    coordsPanel.add(coordinatesInfo);
+    
+    // Update map center. 
+    geometry = areaOfInterest;
+    Map.centerObject(geometry, 13);
+  
+  };
+  
+  // When 'selectAoi' is changed: 'applyGeometryFilter' is called. 
+  selectAoi.onChange(applyGeometryFilter);
+
+
+// ------------------------------------------------------------------------------------------------ //
+// -----------------------------------  APPLY DATE FILTER ----------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+  
+  // Year of today's date. 
+  var dateNow = ee.Number.parse(ee.Date(Date.now()).format('YYYY-MM-dd').slice(0, 4));
+  
+  // Dropdown items need to be strings. Computes a list of all years between start-year
+  // and the current year and formats properly. 
+  var years = ee.List.sequence(2020, dateNow, 1);
+  var yearStrings = years.map(function(year) {
+    return ee.Number(year).format('%04d');
+  });
+  
+  // Evaluate the results and populate the dropdown list. Sets a placeholder for untill a year is selected. 
+  yearStrings.evaluate(function(yearList) {
+    yearSelector.items().reset(yearList);
+    yearSelector.setPlaceholder('Select a year');
+  });
+  
+  // Creates a panel to which the 'yearSelector' and 'dateSelector' can be added. 
+  var dropdownPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('horizontal'),
+  });
+  
+  // Select the year of interest. 
+  var yearSelector = ui.Select({
+    placeholder: 'please wait..',
+  });
+  
+  // Select the date-from-year of interest. 
+  var dateSelector = ui.Select({
+    placeholder: 'please wait..',
+  });
+  
+  // Add a label. 
+  var selectSIDate = ui.Label({value: 'Select year and date of interest',
+                              style: {fontWeight: 'lighter', fontSize: '18px'}});
+  
+  // Add label and panel containting both dropdown lists to the mainPanel.  
+  mainPanel.add(selectSIDate)
+           .add(dropdownPanel);
+  
+  // Add the two dropdown lists to the panel. 
+  dropdownPanel.add(yearSelector)
+               .add(dateSelector);
+
+
+/*
+
+  Function: applyYYYYMMMddFilter()
+  
+  Runs the 'setAreaOfInterest' function grabs the relevant geometry. The function grabs the year previously
+  selected in the dropdown list, and computes all dates for which images are present in that current year,
+  over the relevant geometry. 
+
+*/
+
+  function applyYYYYMMMddFilter(){
+    
+    // run 'setAreaOfInterest' function so that we can grab the current areaOfInterest value. 
+    setAreaOfInterest();
+    AOI = areaOfInterest;
+    
+    function dateLister() {
+    
+    // Grab value from the yearSelector dropdown list. 
+    var year = yearSelector.getValue();
+    var startDate = year+'-01-01';
+    var endDate = year+'-12-31';
+    
+    // Compute all images within the year selected in the dropdown list. 
+    var S1Dates = ee.ImageCollection('COPERNICUS/S1_GRD')
+                .filterBounds(AOI)
+                .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+                .filter(ee.Filter.date(startDate, endDate))
+                .select('VV', 'VH');
+    
+    // Compiles a list of all dates for all the images within the selected year. 
+        dates = S1Dates.map(function(image) {
+            return ee.Feature(null, {'date': image.date().format('YYYY-MM-dd')});
+            }).distinct('date')
+              .aggregate_array('date');
+    }
+    
+    // Run the function that computes the list of years and sets the dates as 'input'. 
+    dateLister();
+    input = dates; 
+  
+    // Evaluate the results and populate the dropdown. 
+    input.evaluate(function(addDates) {
+      dateSelector.items().reset(addDates);
+      dateSelector.setPlaceholder('Select a date');
+    });
+  };
+  
+  // When 'yearSelector' is changed: 'applyYYYYMMMddFilter' is called. 
+  yearSelector.onChange(applyYYYYMMMddFilter);
+  
+  // When 'selectAoi' is changed: 'applyYYYYMMMddFilter' is called. 
+  selectAoi.onChange(applyYYYYMMMddFilter);
+
+// ------------------------------------------------------------------------------------------------ //
+// --------------------------------  APPLY SENTINEL FILTER ---------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+/*
+
+  Function: applySentinelFilter()
+  
+  Runs the grabImage() function. Grabs the selected date and areaOfInterest and computes the Sentinel-1
+  imagery. The Entropy and GLCM bands are computed and added. The VV-band of the image is added to the map. 
+
+  Global variables are used for the AOI and image.  
+  
+*/
+
+  function applySentinelFilter() {
+    
+    function grapImage() {
+      // Grab the date of interest. 
+      var selectedDate = dateSelector.getValue();
+    
+      // Grab selected area and set AOI. 
+      setAreaOfInterest();
+      AOI = areaOfInterest; 
+      
+      // Compile list of the selected Bands: VV, VH, Ent, GLCM.
+      var selectedBands = ee.List([
+  "VV",
+  "VH",
+  "VV_E",
+  "VH_E",
+  "VV_asm",
+  "VV_contrast",
+  "VV_corr",
+  "VV_var",
+  "VV_idm",
+  "VV_savg",
+  "VV_svar",
+  "VV_sent",
+  "VV_ent",
+  "VV_dvar",
+  "VV_dent",
+  "VV_diss",
+  "VV_inertia",
+  "VV_shade",
+  "VV_prom",
+  "VH_asm",
+  "VH_contrast",
+  "VH_corr",
+  "VH_var",
+  "VH_idm",
+  "VH_savg",
+  "VH_svar",
+  "VH_sent",
+  "VH_ent",
+  "VH_dvar",
+  "VH_dent",
+  "VH_diss",
+  "VH_inertia",
+  "VH_shade",
+  "VH_prom",
+]);
+    
+      // The image at the selected date and location is called. The Entropy and GLCM are computed
+      // and the relevant bands are selected. 
+      image = ee.ImageCollection('COPERNICUS/S1_GRD')
+                .filterBounds(AOI)
+                .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+                .filter(ee.Filter.date(selectedDate, ee.Date(selectedDate).advance(1, 'day').format('YYYY-MM-dd')))
+                .select('VV', 'VH')
+                .map(requiredFunctions.computeEntropy)
+                .map(requiredFunctions.computeGlcm)
+                .select(selectedBands)
+                .first();
+      
+      // The same image is called, but this time only for the information on angle. 
+      angleImage = ee.ImageCollection('COPERNICUS/S1_GRD')
+                .filterBounds(AOI)
+                .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+                .filter(ee.Filter.date(selectedDate, ee.Date(selectedDate).advance(1, 'day').format('YYYY-MM-dd')))
+                .select('angle')
+                .first();      }
+      
+    grapImage();
+    
+    // Add Sentinel-1 Layer to map with VV as default.  
+    var layerSentinel = ui.Map.Layer(image, {min: -25, max: -5, bands: ['VV']}, 'layerSentinel');
+    Map.add(layerSentinel);
+    
+    // prepare infoPanel by clearing them (in case they already contained information from previous images)
+    orbitPanel.clear();
+    sentinelPanel.clear();
+    
+    // Compute information on Oribt Pass, Platform Number and Resolution and create labels. 
+    var orbitInfo = ui.Label('Orbit Pass: ' + angleImage.get('orbitProperties_pass').getInfo(), {fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+    var platformInfo = ui.Label('Platform Number: ' + angleImage.get('platform_number').getInfo(), {fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+    var resolutionInfo = ui.Label('Resolution: ' + angleImage.get('resolution_meters').getInfo() + ' meters', {fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+    
+    // Compute the mean angle over the image. 
+    var angle = angleImage.reduceRegion({
+        geometry: AOI, 
+          scale: 30, 
+          reducer: ee.Reducer.mean()
+    }).get('angle');
+    
+    // Store the info on angle as a label. 
+    var angleInfo = ui.Label('Angle: ' + ee.Number(angle).format('%.3f').getInfo() + '°', {fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+        
+    // Add orbitInfo, platformInfo, resolutionInfo and angleInfo to the orbitPanel. 
+    orbitPanel.add(orbitInfo);
+    orbitPanel.add(platformInfo);
+    orbitPanel.add(resolutionInfo);
+    orbitPanel.add(angleInfo);
+    
+    sentinelPanel.clear();
+    
+    // Create the 'exportSentinel' function that is called when the 'downloadSentinelButton'/'Load Viewport' button is clicked. 
+    function exportSentinel() {
+    // Set buttons to shown: true. Meaning once 'Load Viewport' is clicked these urls will show and become clickable. 
+      urlSentinelLabel.style().set('shown', true);
+      urlCsvLabel.style().set('shown', true);
+    }
+    
+    // Load selected geometry and date. 
+    var geometry = selectAoi.getValue();
+    var selectedDate = dateSelector.getValue();
+
+    // Compute Info that will be contained in the CSV: crs, date, location and scale. 
+    var projVV = image.select('VV').projection();
+    var scale = projVV.nominalScale();
+    var crs = projVV.crs();
+    
+    // Create dictionary of those properties. 
+    var csvDict = {geometry: geometry, date: selectedDate, crs: crs, scale: scale};
+  
+    // Create a null geometry feature with the dictionary of properties. 
+    featDict = ee.FeatureCollection(ee.Feature(null, csvDict));
+    
+    // Create button that loads the image and csv-information. When clicked the 'exportSentinel' function is called. 
+    var downloadSentinelButton = ui.Button({
+      label: 'Load viewport', 
+      onClick: exportSentinel
+    });
+    
+    // Style the 'Load Viewport' button. 
+    downloadSentinelButton.style().set({fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '4px', margin: '5px 5px', backgroundColor: '#F0F8FF', width: '100px', textAlign: 'center', whiteSpace: 'break-spaces'});
+  
+    // Create a downloadURL for the selected Sentinel-1 Image. Downloads as a .zip file containing an .tiff image for each band. 
+    var urlSentinel = image.getDownloadURL({
+      name: 'ee_image', 
+      scale: 200, 
+      region: AOI.bounds().buffer(100)
+    });
+    
+    // Create a downloadURL for the property inforation on the selected Sentinel-1 Image. Downloads as a .csv file containing the 
+    // crs, date, location and scale. 
+    var urlCsv      = featDict.getDownloadURL({
+      format: 'CSV', 
+      filename: 'imageInfo'
+    }); 
+    
+    // Create the labels for the downloadURLs. Shown defaults to false. 
+    var urlSentinelLabel = ui.Label('Download Image', {shown: false});
+    var urlCsvLabel      =  ui.Label('Download CSV', {shown: false});
+    
+    // Connect the urlSentinelLabel with the urlSentinel.
+    urlSentinelLabel.setUrl(urlSentinel);
+    // Connect the urlCsvLabel with the urlCsv.
+    urlCsvLabel.setUrl(urlCsv);
+    
+    // Style the url-labels. 
+    urlSentinelLabel.style().set({fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+    urlCsvLabel.style().set({fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+    
+    // Add the downloadSentinelButton, urlSentinelLabel and urlCsvLabel to the sentinelPanel. 
+    sentinelPanel.add(downloadSentinelButton);
+    sentinelPanel.add(urlSentinelLabel);
+    sentinelPanel.add(urlCsvLabel);
+
+  }
+  
+  // When 'dateSelector' is changed: 'applySentinelFilter' is called. 
+  dateSelector.onChange(applySentinelFilter);
+  
+// ------------------------------------------------------------------------------------------------ //
+// ---------------------------  APPLY CLASSIFICATION FILTER --------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+  
+  // Add panel for classification to mainPanel.
+  var classificationPanel = ui.Panel({
+    layout: ui.Panel.Layout.flow('horizontal'),
+  });
+  
+  // Create button with which classification will be initiated.  
+  var classificationSelector = ui.Button({
+    // onClick: applyClassificationFilter(),
+    label: 'Click to apply classification', 
+    style: {width: '200px', 
+            margin: '0px 50px', 
+            fontWeight: 'bold'
+    }
+  });
+  
+  // Add a label to header the classificationPanel. 
+  var selectSIClass = ui.Label({value: 'Apply classification',
+                              style: {fontWeight: 'lighter', fontSize: '18px'}});
+  
+  // Add the 'selectSIClass' label and the classificationPanel to the mainPanel.
+  mainPanel.add(selectSIClass)
+           .add(classificationPanel);
+  
+  // Add the button that initiates classification to the classificationPanel. 
+  classificationPanel.add(classificationSelector);
+  
+/*
+
+  Function: applyClassificationFilter()
+  
+  The function first runs the 'autoSizing' function that preforms the operation in which 
+  an apporixmate outline of the current reservoir is found. Next, in the 'preformClassification'
+  function, classification is preformed. In the classification the geometry of the approximate 
+  outline is used. 
+
+  Global variables are used for the AOI and image.  
+  
+*/
+  
+  function applyClassificationFilter() {
+    
+    // Grab selected date.  
+    var selectedDate = dateSelector.getValue();
+    
+    // Load selected geometry. 
+    var geometry = selectAoi.getValue();
+
+      // Grab selected area and set AOI. 
+      setAreaOfInterest();
+      AOI = areaOfInterest; 
+      
+      // Auto-size Seeding Algorithm. 
+      function autoSizing() {
+        
+        // Compute the buffer and add to the map. 
+        var bufferSize = AOI.centroid().buffer(bufferSeed);
+        var bufferLayer = ui.Map.Layer(bufferSize, {color: '#00b300'}, 'Sample Buffer', false);
+        Map.add(bufferLayer);
+        
+        // Compute the image medians and clip to the relevant bounding box. 
+        var imageMedian = ee.ImageCollection('COPERNICUS/S1_GRD')
+                  .filterBounds(AOI)
+                  .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+                  .filter(ee.Filter.date(ee.Date(selectedDate).advance(-2, 'month').format('YYYY-MM-dd'), ee.Date(selectedDate).advance(2, 'month').format('YYYY-MM-dd')))
+                  .select('VV', 'VH')
+                  .median()
+                  .clip(AOI.buffer(3000).bounds());
+        
+        // Compute the Sigma VHVV Image and add to the map. 
+        var vhvv = ee.Image(imageMedian.select('VV').multiply(imageMedian.select('VH'))).pow(0.5).rename('VHVV');
+        var vhvvMap = ui.Map.Layer(vhvv, {min: 13, max: 22}, 'VH/VV Mean', false);
+        Map.add(vhvvMap);
+        
+        // Compute dictionary for the median value within the buffer zone. 
+        var means = vhvv.reduceRegion({
+          reducer: ee.Reducer.median(),
+          geometry: bufferSize, 
+          scale: 50
+        });
+
+        // Compute dictionary for the standard deviation value within the buffer zone. 
+        var stdDev = vhvv.reduceRegion({
+          reducer: ee.Reducer.stdDev(), 
+          geometry: bufferSize, 
+          scale: 50
+        });
+        
+        // Compute the lower threshold for water/shore. 
+        var thresholdLow = ee.Number(means.get('VHVV')).subtract(ee.Number(5).multiply(ee.Number(stdDev.get('VHVV'))));
+        // Compute the upper threshold for water/shore. 
+        var thresholdHigh = ee.Number(means.get('VHVV')).add(ee.Number(5).multiply(ee.Number(stdDev.get('VHVV'))));
+        
+        // A maximum error is taken into account during computations. 
+        var geomMaxError= 10;
+        var areaMaxError = 10;
+      
+        // Compute the zones within/outside of the threshold values, taking into account the pre-defined error margins. 
+        var zones = ee.Image(vhvv.gt(thresholdLow));
+        zones = zones.updateMask(zones).reduceToVectors({
+          scale: 50
+        }).map(function(f) {return f.set({size: f.geometry(geomMaxError).area(areaMaxError)})});
+        
+        // Sort the zones from large to small and add take the largest zone. 
+        // Consequently add it to the map. 
+        var largestZone = zones.sort('size', false).toList(zones.size()).get(0);
+        var zoneMap = ui.Map.Layer(ee.Feature(largestZone), {color: '#b3005a'}, 'Zone', true);
+        Map.add(zoneMap);
+        
+        // Take the geometry of the relevant zone. 
+        classGeometry = ee.Feature(largestZone).geometry();
+        
+      }
+      
+    autoSizing();
+
+    function preformClassification() {
+        
+      // Bands used in classification. 
+      var selectedBands = ee.List([
+"VH_E_mean",
+"VH_asm_mean",
+"VH_contrast_mean",	
+"VH_corr_mean",	
+"VH_dent_mean",	
+"VH_diss_mean",	
+"VH_dvar_mean",	
+"VH_ent_mean",
+"VH_idm_mean",	
+"VH_inertia_mean",	
+"VH_mean",
+"VH_prom_mean",	
+"VH_savg_mean",	
+"VH_sent_mean",	
+"VH_shade_mean",	
+"VH_svar_mean",	
+"VH_var_mean",
+"VV_E_mean",	
+"VV_asm_mean",	
+"VV_contrast_mean",	
+"VV_corr_mean",	
+"VV_dent_mean",	
+"VV_diss_mean",
+"VV_dvar_mean",	
+"VV_ent_mean",	
+"VV_idm_mean",
+"VV_inertia_mean",
+"VV_mean",
+"VV_prom_mean",	
+"VV_savg_mean",	
+"VV_sent_mean",	
+"VV_shade_mean",	
+"VV_svar_mean",	
+"VV_var_mean",	
+]);
+
+      classImage = image; 
+        
+      // Compute SNIC by importing the 'afn_SNIC' function.
+      var snic = requiredFunctions.afn_SNIC(classImage, 50);
+        
+      // Compute the vector outlines of the clusters by importing the 'vectorize' function. 
+      var vector = requiredFunctions.vectorize(snic, classGeometry);  
+        
+      // Paint the outlines by importing the 'paints' function so that they can be displayed. 
+      var outline = requiredFunctions.paints(vector); 
+        
+      // Classify the SNIC image, clipped to the geometry found in the autoSizing function.  
+      classified = ee.Image(snic.select(selectedBands)).clip(classGeometry).classify(classifier);
+        
+      // Add the classification result to the map. 
+      var classificationMap = ui.Map.Layer(classified, {min: 1, max: 2, palette: ['blue', 'red']}, 'Classification', true);
+      Map.add(classificationMap);
+    }
+      
+    preformClassification();
+      
+    // Create an area image and convert to Hectares
+    var areaImage = ee.Image.pixelArea().divide(1e5);
+        
+    // Add the band containing classes
+    var areaImageWithClass = areaImage.addBands(classified);
+        
+    // Use a Grouped Reducer to calculate areas
+    var areas = areaImageWithClass.reduceRegion({
+              reducer: ee.Reducer.sum().group({
+              groupField: 1,
+              groupName: 'classification',
+            }),
+            geometry: classGeometry,
+            scale: 50,
+            maxPixels: 1e10
+            }); 
+      
+    // Classification=1, Water - Classification=2, Bragg. 
+    var classAreas = ee.List(areas.get('groups'));
+    print('classsAreas', classAreas);
+      
+    // var classAreas0 = ee.Dictionary(classAreas.get(0));
+    // var classAreas0sum = classAreas0.get('sum');
+      
+    // print(ee.Number(ee.Dictionary(classAreas.get(0)).get('sum')));
+    // print(ee.Number(ee.Dictionary(classAreas.get(1)).get('sum')));
+      
+    // var percentageBragg = ee.Number(ee.Number(ee.Dictionary(classAreas.get(1)).get('sum')).divide(ee.Number(ee.Dictionary(classAreas.get(0)).get('sum')).add(ee.Number(ee.Dictionary(classAreas.get(1)).get('sum'))))).multiply(100);
+    // print('percentageBragg:', percentageBragg);
+      
+    // chartPanel.clear();
+    // chartPanel.add(areaChart);
+    classPanel.clear();
+      
+    // Create the 'exportClassification' function that is called when the 'downloadClassificationButton'/'Load Viewport' button is clicked. 
+    function exportClassification() {
+    // Set buttons to shown: true. Meaning once 'Load Viewport' is clicked these urls will show and become clickable. 
+      urlClassificationLabel.style().set('shown', true);
+      urlCsvClassificationLabel.style().set('shown', true);
+    }
+  
+    // Create dictionary of properties. 
+    var csvClassDict = {geometry: geometry, date: selectedDate};
+      
+    // Create a null geometry feature with the dictionary of properties. 
+    var featClassDict = ee.FeatureCollection(ee.Feature(null, csvClassDict));
+      
+    // Create button that loads the classification and csv-information. When clicked the 'exportClassification' function is called. 
+    var downloadClassificationButton = ui.Button({
+        label: 'Classification', 
+        onClick : exportClassification
+    });
+    
+    // Style the 'Classification' Button. 
+    downloadClassificationButton.style().set({fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '4px', margin: '5px 5px', backgroundColor: '#F0F8FF', width: '100px', textAlign: 'center', whiteSpace: 'break-spaces'});
+    
+    // Create a downloadURL for the selected Classification image. Downloads as a .tif file.  
+    var urlClassification = classified.getDownloadURL({
+        name: 'ee_classification',
+        scale: 100, 
+        region: classGeometry.bounds().buffer(300)
+    });
+
+    // Create a downloadURL for the property inforation on the selected Sentinel-1 Image. Downloads as a .csv file containing the 
+    // date and location. 
+    var urlCsvClassification = featClassDict.getDownloadURL({
+        format: 'CSV', 
+        filename: 'classificationInfo'
+    });
+    
+    // Create the labels for the downloadURLs. Shown defaults to false. 
+    var urlClassificationLabel = ui.Label('Download Classification', {shown: false});
+    var urlCsvClassificationLabel   = ui.Label('Download CSV', {shown: false});
+      
+    // Connect the urlClassificationLabel with the urlClassification.
+    urlClassificationLabel.setUrl(urlClassification);
+    
+    // Connect the urlCsvClassificationLabel with the urlCsvClassification.
+    urlCsvClassificationLabel.setUrl(urlCsvClassification);
+
+    // Style the url-labels. 
+    urlClassificationLabel.style().set({fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+    urlCsvClassificationLabel.style().set({fontFamily: 'monospace', fontWeight: 'lighter', fontSize: '10px', margin: '5px 5px', backgroundColor: '#F0F8FF'});
+
+    // Add the downloadClassificationButton, urlClassificationLabel and urlCsvClassificationLabel to the classPanel. 
+    classPanel.add(downloadClassificationButton);
+    classPanel.add(urlClassificationLabel);
+    classPanel.add(urlCsvClassificationLabel);
+
+  
+  }
+  
+
+  classificationSelector.onClick(applyClassificationFilter);
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  var clearMap = function () {
+    Map.clear();
+    Map.add(ui.Button({
+      label: 'Reset Map', 
+      onClick: clearMap
+    }));
+  };
+  
+  Map.add(ui.Button({
+    label: 'Reset Map', 
+    onClick: clearMap
+  }));
+};
+
+
+init();
+
+
+
+
+
