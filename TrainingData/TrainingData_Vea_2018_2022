@@ -1,0 +1,225 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var selectedLakes = ee.FeatureCollection("projects/ee-cvanmeursdata/assets/Thesis/Selected_Lakes");
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+/*
+
+  Differently than with Bosomtwe/Kpong, only Bragg patches were selected and collected here, no water patches. 
+  For the as to why, please refer to the Thesis document provided within the Github repository. 
+  
+*/
+
+// Import geometry and select lake. 
+var lakeVea = ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 179707)).first());
+
+// Set center and add lake outline. 
+Map.centerObject(lakeVea, 14);
+Map.addLayer(lakeVea, {}, 'Lake Outline');
+
+// Function to set class to bragg/water
+var setClassBragg = function(feature) {
+  return feature.set('class', 2);
+};
+
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------- (1). SELECTION BRAGG PATCHES ------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------------------- 2020 ------------------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// May 10th
+var braggVea20200510 = ee.Feature(
+        lakeVea.geometry(),
+        {
+          "class": 2,
+          "system:index": "0"
+        }
+);
+
+var braggVea = ee.List([
+  braggVea20200510,
+]);
+
+// ---------------------------------- (c). sample lists ------------------------------------------- //
+
+// Sample the lists with random points, so that they can be used in classification. 
+var randomPointsBragg = braggVea.map(function(listElement) {
+  return ee.FeatureCollection.randomPoints({
+    region: ee.Feature(listElement).geometry(),
+    points: 50, 
+    seed: 0, 
+    maxError: 1,
+  }).map(setClassBragg);
+});
+
+// ------------------------------------------------------------------------------------------------ //
+// --------------------------- (2). COMPUTE SENTINEL-1 IMAGERY ------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Define a neighborhood with a kernel.
+var kernel = ee.Kernel.circle({radius: 4});
+
+// Function to compute Entropy. 
+var computeEntropy = function (image) {
+  var ent =  ee.Image(image.toInt32()).entropy(kernel).rename('VV_E', 'VH_E');
+  return image.addBands(ent);
+};
+
+// Function to compute GLCM Features. 
+var computeGlcm = function (image) {
+  var glcm = ee.Image(image.toInt32()).glcmTexture(4); 
+  return image.addBands(glcm);
+};
+
+// Compile list of the selected Bands: VV, VH, Ent, GLCM.
+var selectedBands = ee.List([
+  "VV",
+  "VH",
+  "VV_E",
+  "VH_E",
+  "VV_asm",
+  "VV_contrast",
+  "VV_corr",
+  "VV_var",
+  "VV_idm",
+  "VV_savg",
+  "VV_svar",
+  "VV_sent",
+  "VV_ent",
+  "VV_dvar",
+  "VV_dent",
+  "VV_diss",
+  "VV_inertia",
+  "VV_shade",
+  "VV_prom",
+  "VH_asm",
+  "VH_contrast",
+  "VH_corr",
+  "VH_var",
+  "VH_idm",
+  "VH_savg",
+  "VH_svar",
+  "VH_sent",
+  "VH_ent",
+  "VH_dvar",
+  "VH_dent",
+  "VH_diss",
+  "VH_inertia",
+  "VH_shade",
+  "VH_prom",
+]);
+
+// Total Sentinel-1 Imagery for 2018-2019
+var Sentinel = ee.ImageCollection('COPERNICUS/S1_GRD')
+          .filterBounds(lakeVea.geometry())
+          .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+          .filter(ee.Filter.date('2019-01-01', '2022-01-01'))
+          .select('VV', 'VH')
+          .map(computeEntropy)
+          .map(computeGlcm)
+          .select(selectedBands);
+
+// ImageCollection to List
+var S1 = Sentinel.toList(Sentinel.size());
+
+// ----------------------------------- (b). bragg images ------------------------------------------ //
+
+// Bragg Dates for Sentinel-1 Imagery 2018-2022
+var bD = ee.List(['2020-05-10']);
+var bDn = bD.map(function(date) {
+  var nextDate = ee.Date(date).advance(1, 'day');
+  var dateCombo = [ee.Date(date), nextDate];
+  return dateCombo;
+});
+
+// Bragg Sentinel-1 Imagery for 2018-2022, compiled from the Bragg Dates. 
+var SB1 = bDn.map(function(date) {
+  return ee.Image(Sentinel.filter(ee.Filter.date(ee.List(date).get(0), ee.List(date).get(1))).first());
+});
+
+
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------- (3). COMPUTE SNIC IMAGERY -------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// function to compute SNIC superpixels. 
+var afn_SNIC = function(imageOriginal) {
+  
+  // Adjustable Superpixel Seed and SNIC segmentation Parameters:
+  var superPixelSize = 20;
+  var compactness = 1;
+  var connectivity = 4;
+  var seedShape = 'square';
+  var neighborhoodSize = 2 * superPixelSize;
+  
+  // Creates seed grid. 
+    var theSeeds = ee.Algorithms.Image.Segmentation.seedGrid(
+        superPixelSize, seedShape);
+  
+  // Preforms actual SNIC Segmentation. 
+    var snic = ee.Algorithms.Image.Segmentation.SNIC({
+        image: imageOriginal,
+        size: superPixelSize,
+        compactness: compactness,
+        connectivity: connectivity,
+        neighborhoodSize: neighborhoodSize,
+        seeds: theSeeds
+    });
+  
+  // Copies 'system:time_start' parameter to the computed SNIC imagery. 
+    var theStack = snic.addBands(theSeeds).copyProperties({
+      source: imageOriginal, 
+      properties: ['system:time_start']
+    });
+    return (theStack);
+};
+
+
+// Create SNIC images for all Bragg dates
+var SNICsBragg = SB1.map(afn_SNIC);
+
+// Compute list of band names. 
+var propertyList = ee.Image(SNICsWater.get(0)).bandNames();//.slice(1, 41);
+
+// ------------------------------------------------------------------------------------------------ //
+// ---------------------------------- (4). OVERLAY PIXELS ----------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// Zip together SNIC Imagery with the random Bragg samples.
+var BraggPredictor = ee.List(randomPointsBragg).zip(SNICsBragg);
+
+// Overlay and SNIC values for Bragg by applying reduceRegions. 
+var fcSamplesBragg = BraggPredictor.map(function(imagePair) {
+  return ee.Image(ee.List(imagePair).get(1)).select(propertyList).reduceRegions({
+    collection: ee.FeatureCollection(ee.List(imagePair).get(0)),
+    reducer: ee.Reducer.first(), 
+    scale: 10, // Smaller scale can be used since less data is processed, so no computation time-out will occur.
+  });
+});
+
+
+// Merge all braggTraining instances together to create one Bragg data training set. 
+var mergerBragg = ee.FeatureCollection([]);
+for (var i=0; i <=1; i++){
+  var mergedBragg = mergerBragg.merge(ee.FeatureCollection(ee.List(fcSamplesBragg).get(i)));
+  var mergerBragg = mergedBragg;
+}
+
+var merger = mergerBragg;
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------------ (5). EXPORT DATA ------------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Export the FeatureCollection to a CSV file to Google Drive.
+Export.table.toDrive({
+  collection: merger,
+  description:'VV_VH_Ent_GLCM_Vea_Scl_10',
+  folder: 'Task 50',
+  fileFormat: 'CSV'
+});
+
+
+
+

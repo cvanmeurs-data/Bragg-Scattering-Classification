@@ -1,0 +1,464 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var selectedLakes = ee.FeatureCollection("projects/ee-cvanmeursdata/assets/Thesis/Selected_Lakes");
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+
+// Import geometry and select lake. 
+var lakeKpong = ee.Feature(ee.Feature(selectedLakes.filter(ee.Filter.eq('Hylak_id', 15904)).first()).buffer(-450).buffer(350));
+
+// Set center and add lake outline. 
+Map.centerObject(lakeKpong, 13);
+Map.addLayer(lakeKpong, {}, 'Lake Outline');
+
+// Function to set class to bragg/water
+var setClassWater = function(feature) {
+  return feature.set('class', 1);
+};
+var setClassBragg = function(feature) {
+  return feature.set('class', 2);
+};
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------- (1). SELECTION BRAGG PATCHES ------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// ------------------------------------------------------------------------------------------------ //
+// ----------------------------------------- 2022 ------------------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// JANUARY
+
+// Jan 6th
+var waterKpong20220106 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 18th
+var waterKpong20220118 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jan 30th
+var waterKpong20220130 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+  
+// FEBRUARY
+
+// Feb 11th
+var waterKpong20220221 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Feb 23rd
+var waterKpong20220223 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// MARCH
+
+// Mar 7th
+var waterKpong20220307 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 19th
+var waterKpong20220319 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Mar 31st
+var waterKpong20220331 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// APRIL
+
+// Apr 12th
+var waterKpong20220412 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Apr 24th
+var waterKpong20220424 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// MAY
+
+// May 6th
+var waterKpong20220506 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 18th
+var waterKpong20220518 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// May 30th
+var waterKpong20220530 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// JUNE
+
+// Jun 11th
+var waterKpong20220611 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jun 23rd
+var waterKpong20220623 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// JULY
+
+// Jul 5th
+var waterKpong20220705 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 17th
+var waterKpong20220717 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Jul 29th
+var waterKpong20220729 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// AUGUST
+
+// Aug 10th
+var waterKpong20220810 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Aug 22nd
+var waterKpong20220822 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// SEPTEMBER
+
+// Sep 3rd
+var waterKpong20220903 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Sep 27th
+var waterKpong20220927 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// OCTOBER
+
+// Oct 9th
+var waterKpong20221009 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Oct 21st
+var waterKpong20221021 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// NOVEMBER
+
+// Nov 2nd
+var waterKpong20221102 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 14th
+var waterKpong20221114 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Nov 26th
+var waterKpong20221126 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// DECEMBER
+
+// Dec 8th
+var waterKpong20221208 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// Dec 20th
+var waterKpong20221220 = ee.Feature(lakeKpong.geometry(), 
+        {
+          "class": 1, 
+          "system:index": "0"
+        });
+
+// --------------------------------- (b). compile lists ------------------------------------------- //
+
+var waterKpong2022 = ee.List([
+waterKpong20220106,
+waterKpong20220118,
+waterKpong20220130,
+waterKpong20220221,
+waterKpong20220223,
+waterKpong20220307,
+waterKpong20220319,
+waterKpong20220331,
+waterKpong20220412,
+waterKpong20220424,
+waterKpong20220506,
+waterKpong20220518,
+waterKpong20220530,
+waterKpong20220611,
+waterKpong20220623,
+waterKpong20220705,
+waterKpong20220717,
+waterKpong20220729,
+waterKpong20220810,
+waterKpong20220822,
+waterKpong20220903,
+waterKpong20220927,
+waterKpong20221009,
+waterKpong20221021,
+waterKpong20221102,
+waterKpong20221114,
+waterKpong20221126,
+waterKpong20221208,
+waterKpong20221220,
+]);
+var braggKpong2022 = ee.List([
+]);
+
+
+// ---------------------------------- (c). sample lists ------------------------------------------- //
+
+// Sample the lists with random points, so that they can be used in classification. 
+var randomPointsWater = waterKpong2022.map(function(listElement) {
+  return ee.FeatureCollection.randomPoints({
+    region: ee.Feature(listElement).geometry(),
+    points: 50, 
+    seed: 0, 
+    maxError: 1,
+  }).map(setClassWater);
+});
+
+// Since there is no Bragg present, there are no Bragg patches to be sampled. 
+
+// ------------------------------------------------------------------------------------------------ //
+// --------------------------- (2). COMPUTE SENTINEL-1 IMAGERY ------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+
+// Define a neighborhood with a kernel.
+var kernel = ee.Kernel.circle({radius: 4});
+
+// Function to compute Entropy. 
+var computeEntropy = function (image) {
+  var ent =  ee.Image(image.toInt32()).entropy(kernel).rename('VV_E', 'VH_E');
+  return image.addBands(ent);
+};
+
+// Function to compute GLCM Features. 
+var computeGlcm = function (image) {
+  var glcm = ee.Image(image.toInt32()).glcmTexture(4); 
+  return image.addBands(glcm);
+};
+
+// Compile list of the selected Bands: VV, VH, Ent, GLCM.
+var selectedBands = ee.List([
+  "VV",
+  "VH",
+  "VV_E",
+  "VH_E",
+  "VV_asm",
+  "VV_contrast",
+  "VV_corr",
+  "VV_var",
+  "VV_idm",
+  "VV_savg",
+  "VV_svar",
+  "VV_sent",
+  "VV_ent",
+  "VV_dvar",
+  "VV_dent",
+  "VV_diss",
+  "VV_inertia",
+  "VV_shade",
+  "VV_prom",
+  "VH_asm",
+  "VH_contrast",
+  "VH_corr",
+  "VH_var",
+  "VH_idm",
+  "VH_savg",
+  "VH_svar",
+  "VH_sent",
+  "VH_ent",
+  "VH_dvar",
+  "VH_dent",
+  "VH_diss",
+  "VH_inertia",
+  "VH_shade",
+  "VH_prom",
+]);
+
+// Total Sentinel-1 Imagery for 2022-2022
+var Sentinel = ee.ImageCollection('COPERNICUS/S1_GRD')
+          .filterBounds(lakeKpong.geometry())
+          .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+          .filter(ee.Filter.date('2022-01-01', '2023-01-01'))
+          .select('VV', 'VH')
+          .map(computeEntropy)
+          .map(computeGlcm)
+          .select(selectedBands);
+          
+// ImageCollection to List
+var S12022 = Sentinel.toList(Sentinel.size());
+
+
+// Since there is no Bragg present, there are no Bragg images to be called upon. 
+
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------- (3). COMPUTE SNIC IMAGERY -------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// function to compute SNIC superpixels. 
+var afn_SNIC = function(imageOriginal) {
+  
+  // Adjustable Superpixel Seed and SNIC segmentation Parameters:
+  var superPixelSize = 30;
+  var compactness = 1;
+  var connectivity = 4;
+  var seedShape = 'square';
+  var neighborhoodSize = 2 * superPixelSize;
+  
+  // Creates seed grid. 
+    var theSeeds = ee.Algorithms.Image.Segmentation.seedGrid(
+        superPixelSize, seedShape);
+  
+  // Preforms actual SNIC Segmentation. 
+    var snic = ee.Algorithms.Image.Segmentation.SNIC({
+        image: imageOriginal,
+        size: superPixelSize,
+        compactness: compactness,
+        connectivity: connectivity,
+        neighborhoodSize: neighborhoodSize,
+        seeds: theSeeds
+    });
+  
+  // Copies 'system:time_start' parameter to the computed SNIC imagery. 
+    var theStack = snic.addBands(theSeeds).copyProperties({
+      source: imageOriginal, 
+      properties: ['system:time_start']
+    });
+    return (theStack);
+};
+
+
+// Create SNIC images for all dates
+var SNICsWater = S12022.map(afn_SNIC);
+// Since there is no Bragg present, there are no SNIC images to be created for the Bragg sampling. 
+
+// Compute list of band names. 
+var propertyList = ee.Image(SNICsWater.get(0)).bandNames();//.slice(1, 41);
+
+// ------------------------------------------------------------------------------------------------ //
+// ---------------------------------- (4). OVERLAY PIXELS ----------------------------------------- //
+// ------------------------------------------------------------------------------------------------ //
+
+// Zip together SNIC Imagery with the random water samples.
+var waterPredictor = ee.List(randomPointsWater).zip(SNICsWater);
+
+// Overlay and SNIC values for water by applying reduceRegions. 
+var fcSamplesWater = waterPredictor.map(function(imagePair) {
+  return ee.Image(ee.List(imagePair).get(1)).select(propertyList).reduceRegions({
+    collection: ee.FeatureCollection(ee.List(imagePair).get(0)),
+    reducer: ee.Reducer.first(), 
+    scale: 10, // Smaller scale can be used since less data is processed, so no computation time-out will occur. 
+  });
+});
+
+// Since there is no Bragg present, there are no Bragg images to be overlayed and sampled.
+
+// Merge all waterTraining instances together to create one water data training set. 
+var mergerWater = ee.FeatureCollection([]);
+for (var i=0; i <=28; i++){ // The value of 28 is dependent on the size of this years ImageCollection.
+  var mergedWater = mergerWater.merge(ee.FeatureCollection(ee.List(fcSamplesWater).get(i)));
+  var mergerWater = mergedWater;
+}
+
+// Merge is now only water. 
+
+var merger = mergerWater;
+
+
+// ------------------------------------------------------------------------------------------------ //
+// ------------------------------------ (5). EXPORT DATA ------------------------------------------ //
+// ------------------------------------------------------------------------------------------------ //
+
+// Export the FeatureCollection to a CSV file to Google Drive.
+Export.table.toDrive({
+  collection: merger,
+  description:'VV_VH_Ent_GLCM_Kpong_2022_Scl_10',
+  folder: 'Task 50',
+  fileFormat: 'CSV'
+});
